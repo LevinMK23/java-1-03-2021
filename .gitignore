@@ -1,2 +1,4 @@
 # Project exclude paths
 /target/
+.idea
+java-1-03-2021.iml
