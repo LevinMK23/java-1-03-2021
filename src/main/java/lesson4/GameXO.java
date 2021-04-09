@@ -40,15 +40,12 @@ public class GameXO {
     }
 
     private static void moveAI() {
-        // TODO: 06.04.2021 логика хода компьютера (интересная)
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (MAP[i][j] == DEFAULT) {
-                    MAP[i][j] = DOT_O;
-                    return;
-                }
-            }
-        }
+        int x, y;
+        do {
+            x = (int) (1 + Math.random() * 3);
+            y = (int) (1 + Math.random() * 3);
+        } while (!isCellValid(x, y));
+        MAP[x - 1][y - 1] = DOT_O;
     }
 
     private static void aiAwait() {
@@ -63,9 +60,20 @@ public class GameXO {
         System.out.println();
     }
 
-    private static boolean isWin() {
-        // TODO: 06.04.2021 логика проверки на победу
-        return Math.random() > 0.7;
+    private static boolean isWin(char sym) {
+        for (int i = 0; i < SIZE; i++) {
+            boolean hor = true, ver = true, d1 = true, d2 = true;
+            for (int j = 0; j < SIZE; j++) {
+                hor &= MAP[i][j] == sym;
+                ver &= MAP[j][i] == sym;
+                d1 &= MAP[j][j] == sym;
+                d2 &= MAP[j][SIZE - j - 1] == sym;
+            }
+            if (hor || ver || d1 || d2) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void startGame() {
@@ -76,6 +84,7 @@ public class GameXO {
                 "столбца...");
         printMap();
         Scanner in = new Scanner(System.in);
+        int cnt = 0;
         while (true) {
             System.out.println("Делайте ваш ход:");
             String[] values = in.nextLine().split(" ");
@@ -88,21 +97,27 @@ public class GameXO {
                 int y = Integer.parseInt(values[1]);
                 if (isCellValid(x, y)) {
                     makeStep(x, y, DOT_X);
-                    if (isWin()) {
+                    cnt++;
+                    if (isWin(DOT_X)) {
                         System.out.println("Вы победили");
                         showEndGameDialog(in);
                         break;
                     }
                     printMap();
+                    if (cnt == 9) {
+                        System.out.println("Ничья");
+                        showEndGameDialog(in);
+                        break;
+                    }
                     System.out.println("Ход компьютера:");
                     aiAwait();
                     moveAI();
-                    if (isWin()) {
+                    cnt++;
+                    if (isWin(DOT_O)) {
                         System.out.println("Вы проиграли");
                         showEndGameDialog(in);
                         break;
                     }
-                    // TODO: 06.04.2021 обработать случай ничьи
                     printMap();
                 } else {
                     System.out.println("Невозможно сделать такой ход! Введите другие значения");
